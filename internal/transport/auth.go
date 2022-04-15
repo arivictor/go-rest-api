@@ -3,6 +3,7 @@ package transport
 import (
 	"errors"
 	"net/http"
+	"os"
 	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -11,12 +12,16 @@ import (
 
 // validateToken - validates an incoming jwt token
 func validateToken(accessToken string) bool {
-	var key = []byte("test123")
+	key := os.Getenv("JWT_KEY")
+	if key == "" {
+		return false
+	}
+
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("could not validate auth token")
 		}
-		return key, nil
+		return []byte(key), nil
 	})
 
 	if err != nil {
