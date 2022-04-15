@@ -45,11 +45,11 @@ func Run() error {
 	commentHandler := comment.NewHandler(commentService)
 
 	// Route request to handlers
-	router.HandleFunc("/api/v1/comment/{id}", commentHandler.Delete).Methods("DELETE")
-	router.HandleFunc("/api/v1/comment/{id}", commentHandler.Update).Methods("PATCH")
+	router.HandleFunc("/api/v1/comment/{id}", transport.Authorize(commentHandler.Delete)).Methods("DELETE")
+	router.HandleFunc("/api/v1/comment/{id}", transport.Authorize(commentHandler.Update)).Methods("PATCH")
+	router.HandleFunc("/api/v1/comment", transport.Authorize(commentHandler.Create)).Methods("POST")
 	router.HandleFunc("/api/v1/comment/{id}", commentHandler.Get).Methods("GET")
 	router.HandleFunc("/api/v1/comment", commentHandler.List).Methods("GET")
-	router.HandleFunc("/api/v1/comment", commentHandler.Create).Methods("POST")
 
 	// Provision HTTP server
 	s := server.NewServer("8080", router)
