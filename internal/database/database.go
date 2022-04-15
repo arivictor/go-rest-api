@@ -1,10 +1,16 @@
 package database
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"os"
+)
+
+var (
+	ErrorCouldNotConnect = errors.New("could not connect to database")
 )
 
 type Database struct {
@@ -23,7 +29,11 @@ func NewDatabase() (*Database, error) {
 	)
 	connection, err := sqlx.Connect("postgres", connectionString)
 	if err != nil {
-		return nil, err
+		return nil, ErrorCouldNotConnect
 	}
 	return &Database{Client: connection}, nil
+}
+
+func (d *Database) Ping(ctx context.Context) error {
+	return d.Client.DB.PingContext(ctx)
 }
